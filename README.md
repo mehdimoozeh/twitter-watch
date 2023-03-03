@@ -6,9 +6,9 @@ Chosen accounts:
 
 
 ## ✅ Tasks
-1. [] Twitter developer's account
-2. [] Create Openai API key
-3. [] Initial backend with NestJS
-   1. [] API documentation
-   2. [] Mock 4 routes
-4. [] Configure Github action
+1. [x] Twitter developer's account
+2. [ ] Create Openai API key
+3. [x] Initial backend with NestJS
+   1. [ ] API documentation
+   2. [ ] Mock 4 routes
+4. [ ] Configure Github action

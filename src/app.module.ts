@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { HealthController } from './healthController';
 import { ConfigModule } from '@nestjs/config';
+import { TwitterWatchModule } from './twitter-watch/twitter-watch.module';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [ConfigModule.forRoot(), TwitterWatchModule],
+  controllers: [HealthController],
+  providers: [],
 })
 export class AppModule {}

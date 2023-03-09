@@ -1,0 +1,55 @@
+version: '3.9'
+services:
+  mongo:
+    container_name: mongo
+    restart: "no"
+    image: mongo:5.0.5
+    command:
+      - mongod
+      # - --auth
+      - --noscripting
+    volumes:
+      - type: volume
+        source: mongodata
+        target: /data/db
+    ports:
+      - "127.0.0.1:27017:27017"
+    networks:
+      - twitter
+
+  api:
+    container_name: api
+    restart: "always"
+    build:
+        context: ./api
+        dockerfile: dockerfile
+#        args:
+#            - NODE_ENV=development
+    env_file:
+      # - ${TWITTER_WATCH_ENV_FILE}
+        - .env
+    expose:
+      - "0.0.0.0:3001:3001"
+    depends_on:
+      - "mongo"
+    networks:
+      - twitter
+
+  scraper:
+    container_name: scraper
+    restart: on-failure
+    build:
+        context: ./scraper
+        dockerfile: dockerfile
+    command:
+      - crond
+      - -f
+
+networks:
+  twitter:
+    name: twitter
+
+volumes:
+  mongodata:
+
+

@@ -23,10 +23,7 @@ services:
     build:
         context: ./api
         dockerfile: dockerfile
-#        args:
-#            - NODE_ENV=development
     env_file:
-      # - ${TWITTER_WATCH_ENV_FILE}
         - .env
     expose:
       - "0.0.0.0:3001:3001"
@@ -35,19 +32,9 @@ services:
     networks:
       - twitter
 
-  scraper:
-    container_name: scraper
-    restart: on-failure
-    build:
-        context: ./scraper
-        dockerfile: dockerfile
-    command:
-      - crond
-      - -f
-
 networks:
-  twitter:
-    name: twitter
+  scraper:
+    driver: bridge
 
 volumes:
   mongodata:

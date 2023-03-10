@@ -38,16 +38,28 @@ export class TwitterWatchService {
   async tweets(
     twitterHandle: string,
     page: number,
-    limit: number,
+    tweetLimit: number,
+    repliesLimit: number,
   ): Promise<Tweet[]> {
-    const skip = this.skip(page, limit);
+    const skip = this.skip(page, tweetLimit);
     const regex = new RegExp(twitterHandle, 'i'); // handle case sensitivity
-    const tweets = await this.tweetModel
-      .find(
-        { username: { $regex: regex } },
-        {
-          _id: 0,
-          id: 1,
+    const tweets = await this.tweetModel.aggregate([
+      // Match tweets from a specific user
+      {
+        $match: { username: { $regex: regex } },
+      },
+      // Lookup the replies based on inReplyToTweetId field
+      {
+        $lookup: {
+          from: 'tweets',
+          localField: 'id',
+          foreignField: 'inReplyToTweetId',
+          as: 'replies',
+        },
+      },
+      {
+        $project: {
+          _id: 1,
           date: 1,
           inReplyToTweetId: 1,
           lang: 1,
@@ -59,10 +71,29 @@ export class TwitterWatchService {
           url: 1,
           username: 1,
           viewCount: 1,
+          replies: { $slice: ['$replies', repliesLimit] },
         },
-      )
-      .skip(skip)
-      .limit(limit);
+      },
+      {
+        $project: {
+          _id: 1,
+          date: 1,
+          inReplyToTweetId: 1,
+          lang: 1,
+          likeCount: 1,
+          quoteCount: 1,
+          rawContent: 1,
+          replyCount: 1,
+          retweetCount: 1,
+          url: 1,
+          username: 1,
+          viewCount: 1,
+          'replies.username': 1,
+          'replies.rawContent': 1,
+          'replies.date': 1,
+        },
+      },
+    ]);
     return tweets;
   }
 

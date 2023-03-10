@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { TwitterWatchService } from './twitter-watch.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AccountsResponseDto } from './dtos/accounts-response.dto';
@@ -15,11 +15,9 @@ export class TwitterWatchController {
 
   @Get('/accounts')
   @ApiResponse({ type: [AccountsResponseDto] })
-  async accounts(
-    @Query('pagination') pagination: string,
-  ): Promise<AccountsResponseDto> {
-    const page = Number.parseInt(pagination) || 1;
-    const accounts = await this.twitterWatchService.accounts(page, 100);
+  async accounts(@Param('page') page?: number): Promise<AccountsResponseDto> {
+    const pagination = +page || 1;
+    const accounts = await this.twitterWatchService.accounts(pagination, 100);
     const totalAccounts = await this.twitterWatchService.totalAccounts();
     return {
       total: totalAccounts,
@@ -29,16 +27,19 @@ export class TwitterWatchController {
   }
 
   // TODO: add validation
-  @Get('/tweets/:twitter-handle')
+  @Get('/tweets/:handle')
   async tweets(
-    @Query('twitter-handle') twitterHandle: string,
-    @Query('pagination') pagination: string,
+    @Query('handle') twitterHandle: string,
+    @Param('page') page?: number,
+    @Param('repliesLimit') repliesLimit?: number,
   ): Promise<TweetsResponseDto> {
-    const page = Number.parseInt(pagination) || 1;
+    const pagination = +page || 1;
+    const replies = +repliesLimit || 50;
     const tweets = await this.twitterWatchService.tweets(
       twitterHandle,
-      page,
+      pagination,
       100,
+      replies,
     );
     const totalTweets = await this.twitterWatchService.totalTweets(
       twitterHandle,

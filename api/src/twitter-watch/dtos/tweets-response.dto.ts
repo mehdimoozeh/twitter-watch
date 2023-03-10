@@ -3,9 +3,6 @@ import { Prop } from '@nestjs/mongoose';
 
 export class TweetDto {
   @Prop()
-  id: number;
-
-  @Prop()
   date: Date;
 
   @Prop()

@@ -3,10 +3,8 @@ import { User } from './user.model';
 
 @Schema({ versionKey: false, timestamps: false })
 export class Tweet {
+  @Prop({ unique: true })
   _id: string;
-
-  @Prop()
-  id: number;
 
   @Prop()
   conversationId: number;

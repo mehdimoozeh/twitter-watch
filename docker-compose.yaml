@@ -33,7 +33,7 @@ services:
       - twitter
 
 networks:
-  scraper:
+  twitter:
     driver: bridge
 
 volumes:

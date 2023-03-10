@@ -2,6 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { TwitterWatchService } from './twitter-watch.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AccountsResponseDto } from './dtos/accounts-response.dto';
+import { TweetsResponseDto } from './dtos/tweets-response.dto';
 
 interface Result {
   result: string;
@@ -29,9 +30,23 @@ export class TwitterWatchController {
 
   // TODO: add validation
   @Get('/tweets/:twitter-handle')
-  tweets(@Query('twitter-handle') twitterHandle: string): Result {
+  async tweets(
+    @Query('twitter-handle') twitterHandle: string,
+    @Query('pagination') pagination: string,
+  ): Promise<TweetsResponseDto> {
+    const page = Number.parseInt(pagination) || 1;
+    const tweets = await this.twitterWatchService.tweets(
+      twitterHandle,
+      page,
+      100,
+    );
+    const totalTweets = await this.twitterWatchService.totalTweets(
+      twitterHandle,
+    );
     return {
-      result: this.twitterWatchService.tweets(twitterHandle),
+      total: totalTweets,
+      page,
+      tweets,
     };
   }
 

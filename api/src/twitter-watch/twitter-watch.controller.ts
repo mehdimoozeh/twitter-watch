@@ -1,6 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { TwitterWatchService } from './twitter-watch.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AccountsResponseDto } from './dtos/accounts-response.dto';
 
 interface Result {
   result: string;
@@ -12,8 +13,18 @@ export class TwitterWatchController {
   constructor(private readonly twitterWatchService: TwitterWatchService) {}
 
   @Get('/accounts')
-  accounts(): string[] {
-    return this.twitterWatchService.accounts();
+  @ApiResponse({ type: [AccountsResponseDto] })
+  async accounts(
+    @Query('pagination') pagination: string,
+  ): Promise<AccountsResponseDto> {
+    const page = Number.parseInt(pagination) || 1;
+    const accounts = await this.twitterWatchService.accounts(page, 100);
+    const totalAccounts = await this.twitterWatchService.totalAccounts();
+    return {
+      total: totalAccounts,
+      page,
+      accounts,
+    };
   }
 
   // TODO: add validation

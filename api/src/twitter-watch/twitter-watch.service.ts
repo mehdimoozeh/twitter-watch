@@ -35,6 +35,21 @@ export class TwitterWatchService {
     });
   }
 
+  private tweetsProjection = {
+    _id: 1,
+    date: 1,
+    inReplyToTweetId: 1,
+    lang: 1,
+    likeCount: 1,
+    quoteCount: 1,
+    rawContent: 1,
+    replyCount: 1,
+    retweetCount: 1,
+    url: 1,
+    username: 1,
+    viewCount: 1,
+  };
+
   async tweets(
     twitterHandle: string,
     page: number,
@@ -44,11 +59,7 @@ export class TwitterWatchService {
     const skip = this.skip(page, tweetLimit);
     const regex = new RegExp(twitterHandle, 'i'); // handle case sensitivity
     const tweets = await this.tweetModel.aggregate([
-      // Match tweets from a specific user
-      {
-        $match: { username: { $regex: regex } },
-      },
-      // Lookup the replies based on inReplyToTweetId field
+      { $match: { username: { $regex: regex } } },
       {
         $lookup: {
           from: 'tweets',
@@ -59,35 +70,13 @@ export class TwitterWatchService {
       },
       {
         $project: {
-          _id: 1,
-          date: 1,
-          inReplyToTweetId: 1,
-          lang: 1,
-          likeCount: 1,
-          quoteCount: 1,
-          rawContent: 1,
-          replyCount: 1,
-          retweetCount: 1,
-          url: 1,
-          username: 1,
-          viewCount: 1,
+          ...this.tweetsProjection,
           replies: { $slice: ['$replies', repliesLimit] },
         },
       },
       {
         $project: {
-          _id: 1,
-          date: 1,
-          inReplyToTweetId: 1,
-          lang: 1,
-          likeCount: 1,
-          quoteCount: 1,
-          rawContent: 1,
-          replyCount: 1,
-          retweetCount: 1,
-          url: 1,
-          username: 1,
-          viewCount: 1,
+          ...this.tweetsProjection,
           'replies.username': 1,
           'replies.rawContent': 1,
           'replies.date': 1,

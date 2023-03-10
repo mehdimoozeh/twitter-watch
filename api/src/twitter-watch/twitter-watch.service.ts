@@ -28,8 +28,11 @@ export class TwitterWatchService {
     return accounts;
   }
 
-  async totalTweets(twitterhandle: string): Promise<number> {
-    return await this.tweetModel.countDocuments({ username: twitterhandle });
+  async totalTweets(twitterHandle: string): Promise<number> {
+    const regex = new RegExp(twitterHandle, 'i'); // handle case sensitivity
+    return await this.tweetModel.countDocuments({
+      username: { $regex: regex },
+    });
   }
 
   async tweets(

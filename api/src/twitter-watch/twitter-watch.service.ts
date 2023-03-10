@@ -97,8 +97,63 @@ export class TwitterWatchService {
     return tweets;
   }
 
-  audience(twitterHandle: string): string {
-    return `audience of ${twitterHandle}`;
+  async audience(twitterHandle: string): Promise<User[]> {
+    const regex = new RegExp(twitterHandle, 'i'); // handle case sensitivity
+    const repliersOfRecentTweets = await this.tweetModel.aggregate([
+      {
+        $match: {
+          username: { $regex: regex },
+          inReplyToTweetId: null,
+        },
+      },
+      { $sort: { date: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: 'tweets',
+          localField: 'id',
+          foreignField: 'inReplyToTweetId',
+          as: 'replies',
+        },
+      },
+      {
+        $project: {
+          conversationId: 1,
+          'replies.username': 1,
+        },
+      },
+    ]);
+    if (repliersOfRecentTweets.length === 0) return [];
+
+    const audiences = this.findMostActiveUsers(repliersOfRecentTweets);
+    const usernames = Object.keys(audiences);
+
+    const result = await this.userModel.find(
+      { username: { $in: usernames } },
+      { _id: 0 },
+    );
+
+    return result.map((user) =>
+      Object.assign(user.toObject(), {
+        recentRepliesCount: audiences[user.username],
+      }),
+    );
+  }
+
+  private findMostActiveUsers(recentTweets): Record<string, number> {
+    const repliers = {} as Record<string, number>;
+    recentTweets.forEach((tweet) => {
+      tweet.replies.forEach((replier) => {
+        if (repliers[replier.username]) {
+          repliers[replier.username]++;
+        } else {
+          repliers[replier.username] = 1;
+        }
+      });
+    });
+    const result = Object.entries(repliers);
+    result.sort((a, b) => b[1] - a[1]);
+    return Object.fromEntries(result.slice(0, 10));
   }
 
   sentiment(twitterHandle: string): string {

@@ -3,6 +3,7 @@ import { TwitterWatchService } from './twitter-watch.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AccountsResponseDto } from './dtos/accounts-response.dto';
 import { TweetsResponseDto } from './dtos/tweets-response.dto';
+import { AudienceResponseDto } from './dtos/audience-response.dto';
 
 interface Result {
   result: string;
@@ -26,7 +27,6 @@ export class TwitterWatchController {
     };
   }
 
-  // TODO: add validation
   @Get('/tweets/:handle')
   async tweets(
     @Query('handle') twitterHandle: string,
@@ -51,15 +51,13 @@ export class TwitterWatchController {
     };
   }
 
-  // TODO: add validation
   @Get('/audience/:twitter-handle')
-  audience(@Query('twitter-handle') twitterHandle: string): Result {
-    return {
-      result: this.twitterWatchService.audience(twitterHandle),
-    };
+  @ApiResponse({ type: [AudienceResponseDto] })
+  async audience(@Query('twitter-handle') twitterHandle: string) {
+    return await this.twitterWatchService.audience(twitterHandle);
   }
 
-  // TODO: add validation
+  // TODO:
   @Get('/sentiment/:twitter-handle')
   sentiment(@Query('twitter-handle') twitterHandle: string): Result {
     return {

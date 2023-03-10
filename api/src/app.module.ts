@@ -10,7 +10,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        uri: configService.get('MONGO_URI'),
+        uri: configService.get('MONGODB_URI'),
         useNewUrlParser: true,
       }),
       inject: [ConfigService],
@@ -20,4 +20,8 @@ import { MongooseModule } from '@nestjs/mongoose';
   controllers: [HealthController],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private readonly configService: ConfigService) {
+    console.log('MONGODB_URI: ' + this.configService.get('MONGODB_URI'));
+  }
+}

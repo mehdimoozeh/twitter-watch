@@ -2,37 +2,37 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Prop } from '@nestjs/mongoose';
 
 export class TweetDto {
-  @Prop()
+  @ApiProperty()
   date: Date;
 
-  @Prop()
+  @ApiProperty()
   inReplyToTweetId: number;
 
-  @Prop()
+  @ApiProperty()
   lang: string;
 
-  @Prop()
+  @ApiProperty()
   likeCount: number;
 
-  @Prop()
+  @ApiProperty()
   quoteCount: number;
 
-  @Prop()
+  @ApiProperty()
   rawContent: string;
 
-  @Prop()
+  @ApiProperty()
   replyCount: number;
 
-  @Prop()
+  @ApiProperty()
   retweetCount: number;
 
-  @Prop()
+  @ApiProperty()
   url: string;
 
-  @Prop()
+  @ApiProperty()
   username: string;
 
-  @Prop()
+  @ApiProperty()
   viewCount: number;
 }
 
